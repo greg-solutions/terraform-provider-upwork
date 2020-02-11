@@ -43,7 +43,7 @@ func Provider() terraform.ResourceProvider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"upwork": resourceJob(),
+			"upwork_job": resourceJob(),
 		},
 		ConfigureFunc: configureFunc,
 	}
