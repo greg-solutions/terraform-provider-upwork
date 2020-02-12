@@ -1,9 +1,14 @@
 package upwork
 
 import (
+	"bufio"
+	"fmt"
+	"os"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/upwork/golang-upwork/api"
+	"github.com/upwork/golang-upwork/api/routers/auth"
 )
 
 func Provider() terraform.ResourceProvider {
@@ -60,5 +65,27 @@ func configureFunc(rd *schema.ResourceData) (interface{}, error) {
 	}
 
 	client := api.Setup(config)
+	if !client.HasAccessToken(){
+		aurl := client.GetAuthorizationUrl("")
+
+		reader := bufio.NewReader(os.Stdin)
+
+		fmt.Println("Visit the authorization url and provide oauth_verifier for further authorization")
+		fmt.Println(aurl)
+		verifier, _ := reader.ReadString('\n')
+
+		// get access token
+		token := client.GetAccessToken(verifier)
+		fmt.Println(token)
+
+
+	}
+
+	// http.Response and []byte will be return, you can use any
+	_, jsonDataFromHttp1 := auth.New(client).GetUserInfo()
+
+	// here you can Unmarshal received json string, or do any other action(s)
+	fmt.Println(string(jsonDataFromHttp1))
+
 	return client, nil
 }
